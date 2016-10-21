@@ -35,14 +35,15 @@ class STFT:
         stream.close()
         p.terminate()
 
-    def stft(self):
+    def stft(self, log=False):
         if self.current_buffer == '':
             raise ValueError
 
         signal = np.fromstring(self.current_buffer, dtype=np.int16)
 
         fft = abs(np.fft.fft(signal))
-        freqs = np.fft.fftfreq(signal.size, 1/RATE)
+        # multiply 1/RATE by a half because magic ?
+        freqs = np.fft.fftfreq(signal.size, 0.5/RATE)
         freqs = np.fft.fftshift(freqs)
 
         data = [dict(freq=freq, fft=fft[i])
@@ -51,6 +52,10 @@ class STFT:
 
         freqs = np.array([d['freq'] for d in data])
         fft = np.array([d['fft'] for d in data])
+
+        if log:
+            freqs = np.log10(freqs)
+            # fft = np.log10(fft)
 
         return freqs, fft
 
