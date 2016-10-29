@@ -36,11 +36,11 @@ class STFT:
         stream.close()
         p.terminate()
 
-    def _stft(self, audio_signal):
+    def _stft(self, audio_signal, log_scale=False):
         fft = abs(np.fft.fft(audio_signal))
         # multiply 1/RATE by a half because magic ?
         freqs = np.fft.fftfreq(audio_signal.size, 1/RATE)
-        freqs = np.fft.fftshift(freqs)
+        # freqs = np.fft.fftshift(freqs)
 
         data = [dict(freq=freq, fft=fft[i])
                 for i, freq in enumerate(freqs)
@@ -50,15 +50,17 @@ class STFT:
         fft = np.array([d['fft'] for d in data])
 
         # Reverse frequencies to fix error
-        freqs = freqs[::-1]
+        # freqs = freqs[::-1]
 
-        freqs = np.log10(freqs)
+        if log_scale:
+            freqs = np.log10(freqs)
+
         # Makes graph look better
         fft = np.power(fft, 2)
 
         return freqs, fft
 
-    def get_stft(self):
+    def get_stft(self, log_scale=False):
         if self.current_buffer == '':
             raise ValueError
 
@@ -71,10 +73,10 @@ class STFT:
 
         data = {}
 
-        freqs, fft = self._stft(left)
+        freqs, fft = self._stft(left, log_scale)
         data['left'] = {'fft': fft, 'freqs': freqs}
 
-        freqs, fft = self._stft(right)
+        freqs, fft = self._stft(right, log_scale)
         data['right'] = {'fft': fft, 'freqs': freqs}
 
         return data

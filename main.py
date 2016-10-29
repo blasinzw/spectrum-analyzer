@@ -35,12 +35,17 @@ def input_handler(vis, audio_proc):
 
     switcher = {
         'q': {'func': exit,
-              'params': {'vis': vis, 'audio_proc': audio_proc}}
+              'params': {'vis': vis, 'audio_proc': audio_proc}},
+        'm': {'func': switch_mode, 'params': {'vis': vis}}
     }
 
     if char in list(switcher.keys()):
         entry = switcher[char]
         entry['func'](**entry['params'])
+
+
+def switch_mode(vis):
+    vis.toggle_log_scale()
 
 
 # exit function

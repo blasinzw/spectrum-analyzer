@@ -17,6 +17,7 @@ class Visualizer:
     def __init__(self):
         self._setup_ncurses()
         self._init_lines()
+        self.log_scale = True
 
     def _setup_ncurses(self):
         self.window = curses.initscr()
@@ -51,9 +52,9 @@ class Visualizer:
                                                 for j in range(len(x))
                                                 if int(x[j]) == i])))
 
-        # Smothing filter and moving average
+        # Smoothing filter and moving average
         # Not sure if I need moving average or not
-        avg_fft = self._moving_average(avg_fft, 3)
+        # avg_fft = self._moving_average(avg_fft, 3)
         avg_fft = signal.savgol_filter(avg_fft, 11, 3)
 
         return avg_fft
@@ -63,7 +64,7 @@ class Visualizer:
 
     def render(self, get_data):
         try:
-            data = get_data()
+            data = get_data(log_scale=self.log_scale)
         except ValueError:
             return
 
@@ -86,6 +87,9 @@ class Visualizer:
                                              [0, self.nlines])
 
         self.window.refresh()
+
+    def toggle_log_scale(self):
+        self.log_scale = not self.log_scale
 
     def _resize_term(self):
         if curses.is_term_resized(self.nlines, self.ncols):
