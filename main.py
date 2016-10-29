@@ -6,7 +6,7 @@ import sys
 import threading
 import time
 
-import stft
+import audio
 import Visualizer
 
 # default setting for utf-8
@@ -36,16 +36,13 @@ def input_handler(vis, audio_proc):
     switcher = {
         'q': {'func': exit,
               'params': {'vis': vis, 'audio_proc': audio_proc}},
-        'm': {'func': switch_mode, 'params': {'vis': vis}}
+        'm': {'func': lambda vis: vis.toggle_log_scale(),
+              'params': {'vis': vis}}
     }
 
     if char in list(switcher.keys()):
         entry = switcher[char]
         entry['func'](**entry['params'])
-
-
-def switch_mode(vis):
-    vis.toggle_log_scale()
 
 
 # exit function
@@ -62,18 +59,15 @@ def exit(vis, audio_proc):
 ###############################################################################
 def main():
     # Audio processing class
-    audio_proc = stft.STFT(7)
+    audio_proc = audio.Audio()
 
     # Visualizer
     vis = Visualizer.Visualizer()
 
     # Create and start audio thread
     audio_thread = threading.Thread(target=audio_proc.record_monitor)
-    # vis_thread = threading.Thread(target=vis.render,
-    #                               args=[audio_proc.get_stft])
 
     audio_thread.start()
-    # vis_thread.start()
 
     while True:
         # listen for input keys

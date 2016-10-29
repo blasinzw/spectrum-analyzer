@@ -13,11 +13,24 @@ RATE = 44100
 FREQUENCY_RANGE = [20, 20E3]
 
 
-class STFT:
-    def __init__(self, input_device_index=9):
+class Audio:
+    def __init__(self, monitor_name='pulse_monitor'):
         self.current_buffer = ''  # byte string
-        self.input_device_index = input_device_index
+        self.input_device_index = self._get_device_index(monitor_name)
         self.exit = False
+
+    def _get_device_index(self, monitor_name):
+        p = pyaudio.PyAudio()
+
+        device_list = [p.get_device_info_by_index(i)
+                       for i in range(p.get_device_count())]
+
+        p.terminate()
+
+        match = next(device for device in device_list
+                     if device['name'] == monitor_name)
+
+        return match['index']
 
     def record_monitor(self):
         p = pyaudio.PyAudio()
@@ -38,9 +51,7 @@ class STFT:
 
     def _stft(self, audio_signal, log_scale=False):
         fft = abs(np.fft.fft(audio_signal))
-        # multiply 1/RATE by a half because magic ?
         freqs = np.fft.fftfreq(audio_signal.size, 1/RATE)
-        # freqs = np.fft.fftshift(freqs)
 
         data = [dict(freq=freq, fft=fft[i])
                 for i, freq in enumerate(freqs)
@@ -48,9 +59,6 @@ class STFT:
 
         freqs = np.array([d['freq'] for d in data])
         fft = np.array([d['fft'] for d in data])
-
-        # Reverse frequencies to fix error
-        # freqs = freqs[::-1]
 
         if log_scale:
             freqs = np.log10(freqs)
