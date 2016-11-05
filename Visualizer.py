@@ -17,7 +17,6 @@ class Visualizer:
     def __init__(self):
         self._setup_ncurses()
         self._init_lines()
-        self.log_scale = True
 
     def _setup_ncurses(self):
         self.window = curses.initscr()
@@ -33,17 +32,15 @@ class Visualizer:
         self.lines['right'] = [self.Line(x=i, negative=True, velocity=VELOCTIY)
                                for i in range(self.ncols)]
 
-    def _map(self, x, new_dim):
-        interval = np.max(x) - np.min(x)
-
+    def _map(self, x, interval, new_dim):
         if interval == 0:
             interval = 1E-9
 
         return (x - np.min(x)) * (new_dim / interval)
 
-    def _get_magnitudes(self, data):
-        x = self._map(data['freqs'], self.ncols)
-        y = self._map(data['fft'], self.nlines)
+    def _get_magnitudes(self, data, frequency_band):
+        x = self._map(data['freqs'], frequency_band, self.ncols)
+        y = self._map(data['fft'], np.max(data['fft']), self.nlines)
 
         avg_fft = []
 
@@ -64,7 +61,7 @@ class Visualizer:
 
     def render(self, get_data):
         try:
-            data = get_data(log_scale=self.log_scale)
+            data = get_data()
         except ValueError:
             return
 
@@ -72,8 +69,10 @@ class Visualizer:
 
         self.window.clear()
 
-        left = self._get_magnitudes(data['left'])
-        right = self._get_magnitudes(data['right'])
+        frequency_band = data['range'][1] - data['range'][0]
+
+        left = self._get_magnitudes(data['left'], frequency_band)
+        right = self._get_magnitudes(data['right'], frequency_band)
 
         for i in range(self.ncols-1):
             self.lines['left'][i].draw_line(left[i],

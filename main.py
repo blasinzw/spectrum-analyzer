@@ -36,8 +36,13 @@ def input_handler(vis, audio_proc):
     switcher = {
         'q': {'func': exit,
               'params': {'vis': vis, 'audio_proc': audio_proc}},
-        'm': {'func': lambda vis: vis.toggle_log_scale(),
-              'params': {'vis': vis}}
+        'i': {'func': lambda au: au.set_mode('linear'),
+              'params': {'au': audio_proc}},
+        'l': {'func': lambda au: au.set_mode('log'),
+              'params': {'au': audio_proc}},
+        'o': {'func': lambda au: au.set_mode('octave'),
+              'params': {'au': audio_proc}},
+
     }
 
     if char in list(switcher.keys()):
