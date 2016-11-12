@@ -22,7 +22,7 @@ python main.py
 ```
 
 ## Options
-During the runtime of the program pressing the ```o``` key will display the signal in an octave scale, $log_2$. Similarly, pressing the ```l``` and ```i``` key will display the signal in log and linear scales respectively. Pressing the ```q``` key will close the program.
+During the runtime of the program pressing the ```o``` key will display the signal in an octave scale. Similarly, pressing the ```l``` and ```i``` key will display the signal in log and linear scales respectively. Pressing the ```q``` key will close the program.
 
 ## Screenshot
 The following figure is a screenshot of the program running on my computer
